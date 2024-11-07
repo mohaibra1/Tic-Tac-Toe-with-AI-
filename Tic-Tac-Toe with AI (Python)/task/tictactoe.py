@@ -2,7 +2,7 @@
 import random
 board = []
 last_move = 'X'
-
+previous_move = ''
 def initialize_board(board_p=''):
     """Initialize board"""
     if board_p == '':
@@ -35,12 +35,13 @@ def game_state():
 def validate_input(input_command):
     """Return True if user input is correct"""
     user_input = input_command.split()
-    parameters = ['start easy easy', 'start user user', 'start easy user', 'start user easy']
+    parameters = ['start easy easy', 'start user user', 'start easy user', 'start user easy', 'start user medium',
+                  'start medium user', 'start easy medium', 'start medium easy', 'start medium medium']
     if len(user_input) != 3:
-        print('Bad parameters!--')
+        print('Bad parameters!')
         return True
     elif not input_command in parameters :
-        print('Bad parameters!++')
+        print('Bad parameters!')
         return True
 
     return False
@@ -79,21 +80,17 @@ def place_move(move):
     x = int(move[0]) - 1
     y = int(move[1]) - 1
 
-    # join_board = [item for innerlist in board for item in innerlist] # join board to one list and count the elements
-    # x_count = join_board.count('X') # count x
-    # y_count = join_board.count('O') # count y
-
     board[x][y] = last_move
     change_last_move()
 
 def change_last_move():
-    global last_move
+    global last_move, previous_move
+    previous_move = last_move
     if last_move == 'X':
         last_move = 'O'
     else:
         last_move = 'X'
-
-def computer_move():
+def random_computer_move():
     while True:
         x = random.randint(0, 2)
         y = random.randint(0, 2)
@@ -102,10 +99,90 @@ def computer_move():
             continue
 
         board[x][y] = last_move
-        change_last_move()
         break
+def computer_move(mode):
+    if mode =='easy':
+        random_computer_move()
+        print(f'Making move level "{mode}"')
+    elif mode == 'medium':
+        moved = False
+        dia_1 = [board[0][0], board[1][1], board[2][2]]
+        dia_2 = [board[0][2], board[1][1], board[2][0]]
+        if dia_1.count(previous_move) == 2:
+            if ' ' in dia_1:
+                for el in dia_1:
+                    if el == ' ':
+                        num = dia_1.index(el)
+                        if num == 0:
+                            board[0][0] = last_move
+                        elif num == 1:
+                            board[1][1] = last_move
+                        else:
+                            board[2][2] = last_move
+                        dia_1.clear()
+                        print(f'Making  move level "{mode}"')
+                        change_last_move()
+                        break
+                return
+        if dia_2.count(previous_move) == 2:
+            if ' ' in dia_2:
+                for el in dia_2:
+                    if el == ' ':
+                        num = dia_2.index(el)
+                        if num == 0:
+                            board[0][2] = last_move
+                        elif num == 1:
+                            board[1][1] = last_move
+                        else:
+                            board[2][0] = last_move
+                        dia_2.clear()
+                        print(f'Making  move level "{mode}"')
+                        change_last_move()
+                        break
+                return
 
-    print('Making move level "easy"')
+        for i in range(3):
+            temp = []
+            coord = []
+            col = []
+            col_coord = []
+            for j in range(3):
+                temp.append(board[i][j])  # check rows
+                coord.append([i,j])  # add coordinates
+                col.append(board[j][i])  # check columns
+                col_coord.append([j,i])  # add coordinates
+
+            if temp.count(previous_move) == 2:
+                if ' ' in temp:
+                    for el in temp:
+                        if el == ' ':
+                            index = temp.index(el)
+                            x = coord[index][0]
+                            y = coord[index][0]
+                            board[x][y] = last_move
+                            temp.clear()
+                            coord.clear()
+                            moved = True
+                            break
+                    break
+
+            if col.count(previous_move) == 2:
+                if ' ' in col:
+                    for el in col:
+                        if el == ' ':
+                            index = col.index(el)
+                            x = col_coord[index][0]
+                            y = col_coord[index][1]
+                            board[x][y] = last_move
+                            col.clear()
+                            coord.clear()
+                            moved = True
+                            break
+                    break
+        if not moved:
+            random_computer_move()
+        print(f'Making  move level "{mode}"')
+    change_last_move()
 
 def winner_state():
     """Check the state of the game and print the winner"""
@@ -135,6 +212,7 @@ def winner_state():
     return False
 
 def game():
+    global last_move
     """Game starts when user puts in the board"""
     start = True
     index = 1 # to take turns
@@ -158,15 +236,20 @@ def game():
                 stop = winner_state()
                 if stop:
                     break
-        elif sp[1] == 'easy' and sp[2] == 'easy':
+        elif sp[1] in ('easy', 'medium') and sp[2] in ('easy', 'medium'):
             while True:
-                computer_move()
+                if index == 1:
+                    computer_move(sp[1])
+                else:
+                    computer_move(sp[2])
                 game_state()
                 stop = winner_state()
                 if stop:
                     break
-        elif (sp[1] == 'easy' and sp[2] == 'user') or (sp[1] == 'user' and sp[2] == 'easy'):
+
+        elif (sp[1] in ('easy', 'medium') and sp[2] == 'user') or (sp[1] == 'user' and sp[2] in ('easy','medium')) :
             if sp[1] == 'user':
+                sp[1] = sp[2]
                 index = 0
 
             while True:
@@ -176,12 +259,14 @@ def game():
                     place_move(coord)
                     index = 1
                 else:
-                    computer_move()
+                    computer_move(sp[1])
                     index = 0
                 game_state()
                 stop = winner_state()  # check state after we place a move
                 if stop:
                     break
         board.clear()
-
+        change_last_move()
+        index = 1
+        last_move = 'X'
 game()
