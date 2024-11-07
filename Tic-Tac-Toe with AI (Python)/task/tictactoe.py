@@ -1,6 +1,8 @@
 # write your code here
 import random
 board = []
+last_move = 'X'
+
 def initialize_board(board_p=''):
     """Initialize board"""
     if board_p == '':
@@ -30,11 +32,19 @@ def game_state():
         print('---------')
     else:
         print("Board is empty")
-def board_validity(board_p):
-    if len(board_p) < 9:
-        print('Board should 9 letters!')
-        return False
-    return True
+def validate_input(input_command):
+    """Return True if user input is correct"""
+    user_input = input_command.split()
+    parameters = ['start easy easy', 'start user user', 'start easy user', 'start user easy']
+    if len(user_input) != 3:
+        print('Bad parameters!--')
+        return True
+    elif not input_command in parameters :
+        print('Bad parameters!++')
+        return True
+
+    return False
+
 def check_space(coordinate):
     """Check if the given coordinate is free space"""
     x = 0
@@ -48,7 +58,7 @@ def check_space(coordinate):
                 print('This cell is occupied! Choose another one!')
                 coordinate = input('Enter the coordinates: ')
                 continue
-            elif (x > 1 or x > 3) and (y < 1 or y > 3):
+            elif (x < 1 or x > 3) and (y < 1 or y > 3):
                 print('Coordinates should be from 1 to 3!')
                 coordinate = input('Enter the coordinates: ')
                 continue
@@ -73,7 +83,15 @@ def place_move(move):
     # x_count = join_board.count('X') # count x
     # y_count = join_board.count('O') # count y
 
-    board[x][y] = 'X'
+    board[x][y] = last_move
+    change_last_move()
+
+def change_last_move():
+    global last_move
+    if last_move == 'X':
+        last_move = 'O'
+    else:
+        last_move = 'X'
 
 def computer_move():
     while True:
@@ -83,7 +101,8 @@ def computer_move():
         if board[x][y] != ' ':
             continue
 
-        board[x][y] = 'O'
+        board[x][y] = last_move
+        change_last_move()
         break
 
     print('Making move level "easy"')
@@ -118,27 +137,51 @@ def winner_state():
 def game():
     """Game starts when user puts in the board"""
     start = True
-    index = 0 # to take turns
-
-    initialize_board()  # Initialize board
-    game_state()  # Print the state of the game
+    index = 1 # to take turns
 
     while start:
-        # input_board = input('Enter the cells: ')
-        # if not board_validity(input_board):
-           # continue
-        if index == 0:
-            coordinates = input('Enter the coordinates: ')
-            coord = check_space(coordinates) # check space if valid
-            place_move(coord)
-            index = 1
-        else:
-            computer_move()
-            index = 0
-
-        game_state()
-        stop = winner_state() # check state after we place a move
-        if stop:
+        input_command = input('Input command: ')
+        if input_command == 'exit':
             break
+        
+        if validate_input(input_command):
+            continue
+        sp = input_command.split()
+        initialize_board()
+        game_state()
+        if sp[1] == 'user' and sp[2] == 'user':
+            while True:
+                coordinates = input('Enter the coordinates: ')
+                coord = check_space(coordinates) # check space if valid
+                place_move(coord)
+                game_state()
+                stop = winner_state()
+                if stop:
+                    break
+        elif sp[1] == 'easy' and sp[2] == 'easy':
+            while True:
+                computer_move()
+                game_state()
+                stop = winner_state()
+                if stop:
+                    break
+        elif (sp[1] == 'easy' and sp[2] == 'user') or (sp[1] == 'user' and sp[2] == 'easy'):
+            if sp[1] == 'user':
+                index = 0
+
+            while True:
+                if index == 0:
+                    coordinates = input('Enter the coordinates: ')
+                    coord = check_space(coordinates)  # check space if valid
+                    place_move(coord)
+                    index = 1
+                else:
+                    computer_move()
+                    index = 0
+                game_state()
+                stop = winner_state()  # check state after we place a move
+                if stop:
+                    break
+        board.clear()
 
 game()
