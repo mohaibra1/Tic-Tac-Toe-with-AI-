@@ -105,42 +105,38 @@ def computer_move(mode):
         random_computer_move()
         print(f'Making move level "{mode}"')
     elif mode == 'medium':
-        moved = False
-        dia_1 = [board[0][0], board[1][1], board[2][2]]
-        dia_2 = [board[0][2], board[1][1], board[2][0]]
-        if dia_1.count(previous_move) == 2:
-            if ' ' in dia_1:
-                for el in dia_1:
-                    if el == ' ':
-                        num = dia_1.index(el)
-                        if num == 0:
-                            board[0][0] = last_move
-                        elif num == 1:
-                            board[1][1] = last_move
-                        else:
-                            board[2][2] = last_move
-                        dia_1.clear()
-                        print(f'Making  move level "{mode}"')
-                        change_last_move()
-                        break
-                return
-        if dia_2.count(previous_move) == 2:
-            if ' ' in dia_2:
-                for el in dia_2:
-                    if el == ' ':
-                        num = dia_2.index(el)
-                        if num == 0:
-                            board[0][2] = last_move
-                        elif num == 1:
-                            board[1][1] = last_move
-                        else:
-                            board[2][0] = last_move
-                        dia_2.clear()
-                        print(f'Making  move level "{mode}"')
-                        change_last_move()
-                        break
-                return
+        medium_move(mode)
+        print(f'Making  move level "{mode}"')
+    change_last_move()
 
+def medium_move(mode):
+    global board
+    moved = False
+    dia_1 = [board[0][0], board[1][1], board[2][2]]
+    dia_2 = [board[0][2], board[1][1], board[2][0]]
+    if dia_1.count(previous_move) == 2:
+        if ' ' in dia_1:
+            num = dia_1.index(' ')
+            if num == 0:
+                board[0][0] = last_move
+            elif num == 1:
+                board[1][1] = last_move
+            else:
+                board[2][2] = last_move
+            dia_1.clear()
+            return
+    if dia_2.count(previous_move) == 2:
+        if ' ' in dia_2:
+            num = dia_2.index(' ')
+            if num == 0:
+                board[0][2] = last_move
+            elif num == 1:
+                board[1][1] = last_move
+            else:
+                board[2][0] = last_move
+            dia_2.clear()
+            return
+    else:
         for i in range(3):
             temp = []
             coord = []
@@ -148,9 +144,9 @@ def computer_move(mode):
             col_coord = []
             for j in range(3):
                 temp.append(board[i][j])  # check rows
-                coord.append([i,j])  # add coordinates
+                coord.append([i, j])  # add coordinates
                 col.append(board[j][i])  # check columns
-                col_coord.append([j,i])  # add coordinates
+                col_coord.append([j, i])  # add coordinates
 
             if temp.count(previous_move) == 2:
                 if ' ' in temp:
@@ -179,10 +175,8 @@ def computer_move(mode):
                             moved = True
                             break
                     break
-        if not moved:
-            random_computer_move()
-        print(f'Making  move level "{mode}"')
-    change_last_move()
+    if not moved:
+        random_computer_move()
 
 def winner_state():
     """Check the state of the game and print the winner"""

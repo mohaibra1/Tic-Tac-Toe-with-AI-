@@ -12,6 +12,9 @@ files:
   - name: tests.py
     visible: false
     learner_created: false
-feedback_link: https://hyperskill.org/projects/82/stages/456/implement#comment
-status: Unchecked
+feedback_link: https://hyperskill.org/learn/step/7443#comment
+status: Failed
+feedback:
+  message: "Wrong answer in test #146"
+  time: "Fri, 08 Nov 2024 14:25:06 UTC"
 record: 5
